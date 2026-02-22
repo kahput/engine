@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Resolve the directory this script is in and move one level up to get the project root
+PROJECT_ROOT="$(pwd)"
+BUILD_DIR="$PROJECT_ROOT/build"
+
+# Function to build the project using CMake with C99
+build() {
+    echo "[INFO] Creating build files..."
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR" || exit 1
+    cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug "$PROJECT_ROOT"
+    cmake --build .
+    cp compile_commands.json ..
+}
+
+run() {
+    echo "[INFO] running..."
+    cd "${BUILD_DIR}/bin/Debug"
+    "./program"
+}
+
+# Function to clean the build directory
+clean() {
+    echo "[INFO] Cleaning build directory..."
+    rm -rf "$BUILD_DIR"
+}
+
+# Main logic
+case "$1" in
+    build)
+        build
+        ;;
+    run)
+        run
+        ;;
+    clean)
+        clean
+        ;;
+    "")
+        build
+        ;;
+    *)
+        echo "Usage: $0 {build|clean}"
+        ;;
+esac
+
